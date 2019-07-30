@@ -9,6 +9,7 @@ from loguru import logger
 import json
 import fire
 import urllib
+from pathlib import Path
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -17,6 +18,7 @@ CONSUMER_KEY = environ.get("POCKET_CONSUMER_KEY")
 ACCESS_TOKEN = environ.get("POCKET_ACCESS_TOKEN")
 TAG = environ.get("POCKET_TAG")
 KEY_NAME = environ.get("KEY_NAME")
+EXTRACT_ITEM_IDS_FILE = environ.get('EXTRACT_ITEM_IDS_FILE')
 
 def fetch_posts(tag=None):
     if CONSUMER_KEY is None or ACCESS_TOKEN is None or KEY_NAME is None:
@@ -40,10 +42,12 @@ def fetch_posts(tag=None):
         logger.error('unexpected status: ' + str(respJson['status']) + ', ' + str(respJson['error']))
         sys.exit(1)
 
+    itemIds = ''
     keyNameValueList = ''
 
     keys = respJson['list'].keys()
     for key in keys:
+        itemIds += key+'\n'
         post = respJson['list'][key]
         url = post['given_url']
         queries = url.split('?')
@@ -59,6 +63,12 @@ def fetch_posts(tag=None):
     if len(keyNameValueList) == 0:
         logger.error('no ' + KEY_NAME)
         sys.exit(1)
+
+    if EXTRACT_ITEM_IDS_FILE is not None:
+        itemIdsFilePath = Path(__file__).resolve().parent.joinpath(EXTRACT_ITEM_IDS_FILE)
+        idsFile = open(itemIdsFilePath, 'w')
+        idsFile.write(itemIds)
+        idsFile.close()
 
     print(keyNameValueList)
 
