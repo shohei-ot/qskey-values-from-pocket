@@ -64,11 +64,14 @@ def fetch_posts(tag=None):
         logger.error('no ' + KEY_NAME)
         sys.exit(1)
 
-    if EXTRACT_ITEM_IDS_FILE is not None:
-        itemIdsFilePath = Path(__file__).resolve().parent.joinpath(EXTRACT_ITEM_IDS_FILE)
-        idsFile = open(itemIdsFilePath, 'w')
-        idsFile.write(itemIds)
-        idsFile.close()
+    if EXTRACT_ITEM_IDS_FILE is None:
+        logger.error('require EXTRACT_ITEM_IDS_FILE')
+        sys.exit(1)
+
+    itemIdsFilePath = Path(__file__).resolve().parent.joinpath(EXTRACT_ITEM_IDS_FILE)
+    idsFile = open(itemIdsFilePath, 'w')
+    idsFile.write(itemIds)
+    idsFile.close()
 
     print(keyNameValueList)
 
